@@ -8,4 +8,3 @@ Contents:
 - [ArcGIS Dashboard Project]()
 - [AI Care Companion Implementation Project]()
 
- [resume](resume-mrt.pdf)
