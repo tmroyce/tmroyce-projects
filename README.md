@@ -1,8 +1,8 @@
 # Projects
 
-A selection of my reports, projects, and other ongoing works.
+Collection of my academic reports, independent research, and projects.
 
-Contents:
+## Contents:
 
 [CTS Age Distribution Analysis (2000-2022)](/age-distribution-analysis-using-sas.pdf)
 
@@ -15,3 +15,10 @@ Contents:
 [Preoperative Care Implementation Plan](/preop-implementation-science-project.pdf)
 
 - Implementation science proposal for deploying AI-powered preoperative care companion at Henry Ford Health System using CFIR and ERIC frameworks.
+
+
+## Author
+
+Michael Royce Tan, BSN, RN
+MPH Candidate, University of Michigan School of Public Health
+
