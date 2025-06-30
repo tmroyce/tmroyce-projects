@@ -19,6 +19,6 @@ Collection of my academic reports, independent research, and projects.
 
 ## Author
 
-Michael Royce Tan, BSN, RN
+Michael Royce Tan, BSN, RN 
 MPH Candidate, University of Michigan School of Public Health
 
