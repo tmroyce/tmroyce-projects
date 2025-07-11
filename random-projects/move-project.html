@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Move - Routine & Timer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons in infographic -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Global Body Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7fafc; /* Light gray background for the overall page */
+            color: #2d3748; /* Dark gray text */
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center content horizontally */
+            min-height: 100vh;
+            overflow-y: auto; /* Allow scrolling for the main content */
+            transition: background-color 0.8s ease-in-out; /* Smooth phase color changes for timer */
+        }
+
+        /* Timer App Section (Centered) */
+        #timer-app-container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px; /* Original padding */
+            text-align: center;
+            width: 90%;
+            max-width: 550px; /* Original max-width */
+            display: flex;
+            flex-direction: column;
+            gap: 25px; /* Original gap */
+            box-sizing: border-box;
+            margin: 20px auto; /* Centered with vertical margin */
+            position: relative; /* Not fixed anymore */
+            top: auto;
+            left: auto;
+            z-index: auto;
+        }
+
+        #timer-app-container header h1 {
+            font-size: 2.2em; /* Original font size */
+            color: #2c3e50;
+            margin-bottom: 10px; /* Original margin */
+        }
+
+        #timer-display {
+            background-color: #eef2f6;
+            padding: 25px; /* Original padding */
+            border-radius: 10px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        #phase-title {
+            font-size: 1.6em; /* Original font size */
+            color: #555;
+            margin-bottom: 10px; /* Original margin */
+        }
+
+        #exercise-name {
+            font-size: 2.4em; /* Original font size */
+            color: #007bff;
+            margin: 10px 0; /* Original margin */
+            font-weight: bold;
+        }
+
+        #exercise-instructions {
+            font-size: 1.1em; /* Original font size */
+            line-height: 1.5;
+            color: #666;
+            min-height: 50px; /* Original min-height */
+        }
+
+        #countdown {
+            font-size: 5em; /* Original font size */
+            font-weight: 900;
+            color: #34495e;
+            margin: 20px 0; /* Original margin */
+            letter-spacing: 2px; /* Original letter-spacing */
+        }
+
+        #progress-bar-container {
+            width: 100%;
+            background-color: #dce0e6;
+            height: 10px; /* Original height */
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 15px; /* Original margin */
+        }
+
+        #exercise-progress {
+            height: 100%;
+            width: 0%;
+            background-color: #28a745; /* Green */
+            border-radius: 5px;
+            transition: width 0.5s linear;
+        }
+
+        #controls {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px; /* Original gap */
+        }
+
+        #controls button {
+            flex: 1;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 25px; /* Original padding */
+            font-size: 1.2em; /* Original font size */
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+
+        #controls button:hover:not(:disabled) {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        #controls button:active:not(:disabled) {
+            transform: translateY(0);
+            box-shadow: 0 2px 5px rgba(0, 123, 255, 0.5);
+        }
+
+        #controls button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #settings {
+            border-top: 1px solid #e0e0e0;
+            padding-top: 20px; /* Original padding */
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Original gap */
+        }
+
+        #settings h3 {
+            font-size: 1.3em; /* Original font size */
+            color: #34495e;
+            margin-bottom: 5px;
+        }
+
+        #settings select {
+            padding: 10px; /* Original padding */
+            font-size: 1.1em; /* Original font size */
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: white;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20512%22%3E%3Cpath%20fill%3D%22%23333%22%20d%3D%22M192%20256L64%20128v256z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+
+        /* Main Content Area for Infographic */
+        .infographic-container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex-grow: 1; /* Allows infographic to take available space */
+            padding-top: 2rem; /* Revert padding for infographic */
+        }
+
+        /* Infographic Specific Styles (retained from previous version) */
+        .section-card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 8px solid; /* For accent color */
+        }
+        .section-header {
+            font-size: 1.75rem; /* text-2xl */
+            font-weight: 700; /* font-bold */
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        .section-purpose {
+            font-size: 1rem;
+            font-style: italic;
+            color: #4a5568; /* Gray-700 */
+            margin-bottom: 1rem;
+        }
+        .exercise-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        .exercise-icon {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+            color: #4299e1; /* Blue-500 */
+            flex-shrink: 0;
+            width: 2rem; /* Fixed width for alignment */
+            text-align: center;
+        }
+        .exercise-details {
+            flex-grow: 1;
+        }
+        .exercise-name {
+            font-weight: 600; /* font-semibold */
+            color: #2c5282; /* Blue-800 */
+        }
+        .exercise-description {
+            font-size: 0.9rem;
+            color: #4a5568; /* Gray-700 */
+        }
+        .total-duration {
+            background-color: #a0aec0; /* Gray-500 */
+            color: #ffffff;
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700; /* font-bold */
+            margin-top: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .sub-exercise-item {
+            margin-left: 2.75rem; /* Align with description text */
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+
+        /* Phase Colors (applied to body via JS) */
+        body.phase-1 { background-color: #d1efff; /* Light Blue - Wake Up */ }
+        body.phase-2 { background-color: #fff9e6; /* Light Yellow/Cream - Mobilize */ }
+        body.phase-3 { background-color: #ffe6e6; /* Light Peach/Pink - Activate */ }
+        body.phase-4 { background-color: #e6ffe6; /* Light Green - Settling */ }
+
+        /* Responsive adjustments for Infographic */
+        @media (min-width: 768px) {
+            .infographic-container .section-card {
+                padding: 2rem;
+            }
+            .infographic-container .section-header {
+                font-size: 2rem; /* text-3xl */
+            }
+            .infographic-container .exercise-icon {
+                font-size: 1.75rem;
+            }
+            .infographic-container .exercise-name {
+                font-size: 1.1rem;
+            }
+            .infographic-container .exercise-description {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Timer App Section (Centered) -->
+    <div id="timer-app-container">
+        <header>
+            <h1>Move Timer</h1>
+        </header>
+
+        <div id="timer-display">
+            <h2 id="phase-title"></h2>
+            <h3 id="exercise-name"></h3>
+            <p id="exercise-instructions"></p>
+            <div id="countdown">00:00</div>
+            <div id="progress-bar-container">
+                <div id="exercise-progress"></div>
+            </div>
+        </div>
+
+        <div id="controls">
+            <button id="prev-btn">Back</button>
+            <button id="play-pause-btn">Start</button>
+            <button id="next-btn">Skip</button>
+        </div>
+
+        <div id="settings">
+            <h3>Routine Length</h3>
+            <select id="routine-length-selector">
+                <option value="express">Express (19-23 min)</option>
+                <option value="full">Full (27-39 min)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Infographic Section -->
+    <div class="infographic-container">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-blue-800 mb-2">Move</h1>
+            <p class="text-xl md:text-2xl text-gray-700 italic">Blend of Chinese, Tibetan & Modern Practices</p>
+            <div class="total-duration mt-6 bg-gradient-to-r from-blue-500 to-indigo-600">
+                Total Time: Express 19-23 min | Full 27-39 min
+            </div>
+        </header>
+
+        <!-- PHASE 1: WAKE UP -->
+        <div class="section-card border-blue-400">
+            <h2 class="section-header text-blue-700">
+                <i class="fas fa-sun mr-3 text-yellow-500"></i> PHASE 1: WAKE UP <span class="ml-auto text-base font-normal text-gray-600">(4-5 minutes)</span>
+            </h2>
+            <p class="section-purpose">Purpose: Activate circulation and wake up the nervous system</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-child"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">1. Gentle Bouncing & Shaking - 2 minutes</div>
+                        <div class="exercise-description">Bounce lightly on your toes, let your whole body shake loose. Imagine shaking off sleep and stagnant energy. From Qigong "shaking the tree" practice.</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-hand-fist"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">2. Energy Point Tapping - 2-3 minutes</div>
+                        <div class="exercise-description">Gently tap each area 9 times with cupped hand: Inner elbow crease (heart energy), Armpit hollow (lung/heart energy), Groin crease (liver/spleen energy), Back of knee (kidney/bladder energy). Traditional Chinese Medicine for activating energy flow.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 2: MOBILIZE -->
+        <div class="section-card border-green-400">
+            <h2 class="section-header text-green-700">
+                <i class="fas fa-running mr-3 text-green-600"></i> PHASE 2: MOBILIZE <span class="ml-auto text-base font-normal text-gray-600">(8-10 minutes)</span>
+            </h2>
+            <p class="section-purpose">Purpose: Mobilize joints and increase range of motion</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-arrows-alt-v"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">3. Arm Swings - 1 minute</div>
+                        <div class="exercise-description">Forward and backward: 30 seconds each. Keep movements smooth and controlled.</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-exchange-alt"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">4. Cross-Body Arm Swings - 1 minute</div>
+                        <div class="exercise-description">Swing arms across your body. Let your torso gently twist.</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-redo-alt"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">5. Trunk Twists - 1 minute</div>
+                        <div class="exercise-description">Hands on hips, twist side to side. Keep hips stable, arms loose.</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-wave-square"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">6. Body Waves - 1-2 minutes</div>
+                        <div class="exercise-description">Create a wave through your spine. Start from tailbone, flow up to head. Key Qigong movement for spinal health.</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-circle-notch"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">7. Hip Circles ("Gold Swings") - 1-2 minutes</div>
+                        <div class="exercise-description">Circle hips like figure-8s. Loosen lower back and hip joints. Traditional hip mobility practice.</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-hand-peace"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">8. Arm Loosening ("Dead Arms") - 1 minute</div>
+                        <div class="exercise-description">Let arms hang heavy and loose. Shake out all shoulder tension.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 3: ACTIVATE -->
+        <div class="section-card border-red-400">
+            <h2 class="section-header text-red-700">
+                <i class="fas fa-fire mr-3 text-orange-500"></i> PHASE 3: ACTIVATE <span class="ml-auto text-base font-normal text-gray-600">(9-13 minutes)</span>
+            </h2>
+            <p class="section-purpose">Purpose: Engage major muscle groups and build energy</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-walking"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">9. Marching with Knee Slaps - 1-2 minutes</div>
+                        <div class="exercise-description">March in place, slap knees with opposite hands. Focus on coordination and steady rhythm.</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-shoe-prints"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">10. Back Heel Taps - 1 minute</div>
+                        <div class="exercise-description">Kick heel back toward glutes, tap with hand. Targets hamstrings and balance.</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-forward"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">11. Front Heel Taps - 1 minute</div>
+                        <div class="exercise-description">Lift leg forward, tap heel with opposite hand. Dynamic hamstring stretch.</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-person-walking-luggage"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">12. Squats - 2 minutes</div>
+                        <div class="exercise-description">10-15 slow, controlled squats. Rest and repeat if needed.</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-compress-alt"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">13. Elbow to Knee - 1-2 minutes</div>
+                        <div class="exercise-description">Standing crunches, opposite elbow to knee. Engages core and improves coordination.</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-shoe-prints"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">14. Step Jacks - 1-2 minutes</div>
+                        <div class="exercise-description">Step out and raise arms (no jumping). Full-body cardio movement.</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-fist-raised"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">15. Shadow Boxing - 1-2 minutes</div>
+                        <div class="exercise-description">Light punches with torso rotation. Great for energy and stress release.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 4: SETTLE -->
+        <div class="section-card border-purple-400">
+            <h2 class="section-header text-purple-700">
+                <i class="fas fa-seedling mr-3 text-green-500"></i> PHASE 4: SETTLE <span class="ml-auto text-base font-normal text-gray-600">(8-10 minutes)</span>
+            </h2>
+            <p class="section-purpose">Purpose: Settle energy and prepare for the day</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-stretch"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">16. Cool-Down Stretches - 6-7 minutes</div>
+                        <div class="sub-exercise-item">Calf Stretch: Step back, keep heel down (60 sec total, alternate)</div>
+                        <div class="sub-exercise-item">Standing Quad Stretch: Pull heel to glutes (60 sec total, alternate)</div>
+                        <div class="sub-exercise-item">Standing Knee-to-Chest: Pull knee up to chest (60 sec total, alternate)</div>
+                        <div class="sub-exercise-item">Neck Stretch: Gentle side-to-side and forward (60 sec total)</div>
+                        <div class="sub-exercise-item">Cross-Body Arm Stretch: Pull arm across chest (60 sec total, alternate)</div>
+                        <div class="sub-exercise-item">Hand Behind Back Stretch: Reach up and down behind back (60 sec total, alternate)</div>
+                        <div class="sub-exercise-item">Overhead Hand Clasp Stretch: Clasp hands overhead, lean side to side (60 sec total)</div>
+                    </div>
+                </div>
+                <div class="exercise-item">
+                    <div class="exercise-icon"><i class="fas fa-lungs"></i></div>
+                    <div class="exercise-details">
+                        <div class="exercise-name">17. Mindful Breathing - 2-3 minutes</div>
+                        <div class="exercise-description">Stand or sit comfortably. Deep belly breathing. Set intention for your day. Integrates all energy work.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Reference Section -->
+        <div class="section-card border-gray-400 mt-8">
+            <h2 class="section-header text-gray-700">
+                <i class="fas fa-info-circle mr-3 text-gray-500"></i> Quick Reference
+            </h2>
+            <div class="mb-4">
+                <h3 class="font-semibold text-lg text-blue-600">EXPRESS VERSION (19-23 min):</h3>
+                <ul class="list-disc list-inside text-gray-700 ml-4">
+                    <li>Bouncing & Tapping: 3 min total</li>
+                    <li>Mobilize: 5-6 min (30-45 sec each)</li>
+                    <li>Activate: 5-6 min (30-60 sec each)</li>
+                    <li>Settle: 6-8 min (stretches at 30 sec total, 2 min breathing)</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-semibold text-lg text-green-600">FULL VERSION (27-39 min):</h3>
+                <p class="text-gray-700 ml-4">All exercises with complete timing as listed above</p>
+            </div>
+        </div>
+
+        <!-- Footer for Infographic -->
+        <footer class="text-center mt-8 text-gray-500 text-sm">
+            <p>&copy; 2025 Move Routine. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        // --- Exercise Data ---
+        // Defines the exercises, their instructions, durations for different routine lengths, and phases.
+        const routineData = [
+            { name: "Gentle Bouncing & Shaking", instructions: "Bounce lightly on your toes, let your whole body shake loose. Imagine shaking off sleep and stagnant energy. From Qigong 'shaking the tree' practice.", duration: { express: 120, full: 120 }, phase: 1 },
+            { name: "Energy Point Tapping", instructions: "Gently tap each area 9 times with cupped hand: Inner elbow crease (heart energy), Armpit hollow (lung/heart energy), Groin crease (liver/spleen energy), Back of knee (kidney/bladder energy). Traditional Chinese Medicine for activating energy flow.", duration: { express: 120, full: 180 }, phase: 1 },
+            { name: "Arm Swings", instructions: "Forward and backward: 30 seconds each. Keep movements smooth and controlled.", duration: { express: 45, full: 60 }, phase: 2 },
+            { name: "Cross-Body Arm Swings", instructions: "Swing arms across your body. Let your torso gently twist.", duration: { express: 45, full: 60 }, phase: 2 },
+            { name: "Trunk Twists", instructions: "Hands on hips, twist side to side. Keep hips stable, arms loose.", duration: { express: 45, full: 60 }, phase: 2 },
+            { name: "Body Waves", instructions: "Create a wave through your spine. Start from tailbone, flow up to head. Key Qigong movement for spinal health.", duration: { express: 60, full: 120 }, phase: 2 },
+            { name: "Hip Circles ('Gold Swings')", instructions: "Circle hips like figure-8s. Loosen lower back and hip joints. Traditional hip mobility practice.", duration: { express: 60, full: 120 }, phase: 2 },
+            { name: "Arm Loosening ('Dead Arms')", instructions: "Let arms hang heavy and loose. Shake out all shoulder tension.", duration: { express: 45, full: 60 }, phase: 2 },
+            { name: "Marching with Knee Slaps", instructions: "March in place, slap knees with opposite hands. Focus on coordination and steady rhythm.", duration: { express: 60, full: 120 }, phase: 3 },
+            { name: "Back Heel Taps", instructions: "Kick heel back toward glutes, tap with hand. Targets hamstrings and balance.", duration: { express: 30, full: 60 }, phase: 3 },
+            { name: "Front Heel Taps", instructions: "Lift leg forward, tap heel with opposite hand. Dynamic hamstring stretch.", duration: { express: 30, full: 60 }, phase: 3 },
+            { name: "Squats", instructions: "10-15 slow, controlled squats. Rest and repeat if needed.", duration: { express: 60, full: 120 }, phase: 3 },
+            { name: "Elbow to Knee", instructions: "Standing crunches, opposite elbow to knee. Engages core and improves coordination.", duration: { express: 60, full: 120 }, phase: 3 },
+            { name: "Step Jacks", instructions: "Step out and raise arms (no jumping). Full-body cardio movement.", duration: { express: 60, full: 120 }, phase: 3 },
+            { name: "Shadow Boxing", instructions: "Light punches with torso rotation. Great for energy and stress release.", duration: { express: 60, full: 120 }, phase: 3 },
+            // Grouped Cool-Down Stretches (formerly individual repetitions)
+            { name: "Cool-Down Stretches", instructions: "Perform the following stretches: Calf Stretch, Standing Quad Stretch, Standing Knee-to-Chest, Neck Stretch, Cross-Body Arm Stretch, Hand Behind Back Stretch, Overhead Hand Clasp Stretch. Refer to the infographic for detailed timings.", duration: { express: 180, full: 360 }, phase: 4 }, // Express: 3 min, Full: 6 min
+            { name: "Mindful Breathing", instructions: "Stand or sit comfortably. Deep belly breathing. Set intention for your day. Integrates all energy work.", duration: { express: 120, full: 180 }, phase: 4 } // Express: 2 min, Full: 3 min
+        ];
+
+        // Maps phase numbers to descriptive names.
+        const phaseNames = {
+            1: "Wake Up",
+            2: "Mobilize",
+            3: "Activate",
+            4: "Settle"
+        };
+
+        // Maps phase numbers to CSS classes for background color changes.
+        const phaseColorsClasses = {
+            1: 'phase-1',
+            2: 'phase-2',
+            3: 'phase-3',
+            4: 'phase-4'
+        };
+
+        // --- DOM Elements ---
+        // Get references to HTML elements to update their content or listen for events.
+        const countdownDisplay = document.getElementById('countdown');
+        const exerciseNameDisplay = document.getElementById('exercise-name');
+        const exerciseInstructionsDisplay = document.getElementById('exercise-instructions');
+        const phaseTitleDisplay = document.getElementById('phase-title');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const exerciseProgressBar = document.getElementById('exercise-progress');
+        const routineLengthSelector = document.getElementById('routine-length-selector');
+
+        // --- Timer State Variables ---
+        let currentExerciseIndex = 0; // Tracks the current exercise in the routine.
+        let timeRemaining = 0;        // Time left for the current exercise in seconds.
+        let timerInterval;            // Holds the setInterval ID for clearing the timer.
+        let isPaused = true;          // Flag to check if the timer is paused.
+        // Loads the last selected routine length from local storage, defaults to 'full'.
+        let selectedRoutineLength = localStorage.getItem('routineLength') || 'full';
+        if (selectedRoutineLength !== 'express' && selectedRoutineLength !== 'full') {
+            selectedRoutineLength = 'full'; // Ensure it's one of the valid options
+            localStorage.setItem('routineLength', selectedRoutineLength);
+        }
+
+        // --- Functions ---
+
+        /**
+         * Updates the display with the current exercise information and countdown.
+         */
+        function updateDisplay() {
+            const exercise = routineData[currentExerciseIndex];
+            if (!exercise) return; // Guard against invalid exercise index.
+
+            // Update text content for exercise name, instructions, and phase.
+            exerciseNameDisplay.textContent = exercise.name;
+            exerciseInstructionsDisplay.textContent = exercise.instructions;
+            phaseTitleDisplay.textContent = `Phase ${exercise.phase}: ${phaseNames[exercise.phase]}`;
+
+            // Update body background color based on the current phase.
+            document.body.className = ''; // Clear existing phase classes.
+            document.body.classList.add(phaseColorsClasses[exercise.phase]);
+
+            // Calculate minutes and seconds for countdown display.
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            // Format countdown to MM:SS (e.g., 05:03).
+            countdownDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            // Update progress bar for the current exercise.
+            const totalExerciseTime = exercise.duration[selectedRoutineLength];
+            // Calculate percentage of time elapsed for the current exercise.
+            const progressPercentage = ((totalExerciseTime - timeRemaining) / totalExerciseTime) * 100;
+            exerciseProgressBar.style.width = `${progressPercentage}%`;
+        }
+
+        /**
+         * Starts the countdown timer.
+         */
+        function startTimer() {
+            // Clear any existing interval to prevent multiple timers running simultaneously
+            // and to ensure a fresh start for auto-advance.
+            clearInterval(timerInterval);
+
+            isPaused = false;
+            playPauseBtn.textContent = 'Pause'; // Change button text to 'Pause'.
+
+            // Enable navigation buttons when timer starts
+            prevBtn.disabled = false;
+            nextBtn.disabled = false;
+
+            // Set up an interval to decrement time every second.
+            timerInterval = setInterval(() => {
+                if (timeRemaining > 0) {
+                    timeRemaining--; // Decrement time.
+                    updateDisplay();  // Update the UI.
+                } else {
+                    // Time for current exercise is up.
+                    clearInterval(timerInterval); // Stop the current timer.
+                    if (currentExerciseIndex < routineData.length - 1) {
+                        // If there are more exercises, advance to the next one.
+                        currentExerciseIndex++; // Move to next exercise.
+                        setExercise(currentExerciseIndex); // Set up the next exercise.
+                        startTimer(); // Automatically start timer for the new exercise.
+                    } else {
+                        // All exercises completed.
+                        finishRoutine();
+                    }
+                }
+            }, 1000); // Interval runs every 1000 milliseconds (1 second).
+        }
+
+        /**
+         * Pauses the countdown timer.
+         */
+        function pauseTimer() {
+            if (isPaused) return; // Already paused.
+            isPaused = true;
+            playPauseBtn.textContent = 'Play'; // Change button text to 'Play'.
+            clearInterval(timerInterval); // Stop the timer interval.
+        }
+
+        /**
+         * Toggles between play and pause states.
+         */
+        function togglePlayPause() {
+            if (isPaused) {
+                startTimer();
+            } else {
+                pauseTimer();
+            }
+        }
+
+        /**
+         * Sets the current exercise and initializes its timer.
+         * @param {number} index - The index of the exercise in routineData.
+         */
+        function setExercise(index) {
+            // Validate the index to ensure it's within bounds.
+            if (index < 0 || index >= routineData.length) {
+                console.error("Invalid exercise index:", index);
+                return;
+            }
+            currentExerciseIndex = index; // Update the current exercise index.
+            // Get the duration for the selected routine length (express, daily, full).
+            timeRemaining = routineData[currentExerciseIndex].duration[selectedRoutineLength];
+            updateDisplay(); // Update the UI to show the new exercise.
+        }
+
+        /**
+         * Handles routine completion.
+         */
+        function finishRoutine() {
+            clearInterval(timerInterval); // Stop any running timer.
+            countdownDisplay.textContent = "DONE!"; // Update countdown display.
+            exerciseNameDisplay.textContent = "Routine Complete!"; // Update exercise name.
+            exerciseInstructionsDisplay.textContent = "Great job! Time to start your day."; // Update instructions.
+            playPauseBtn.textContent = "Restart"; // Change button to 'Restart'.
+            isPaused = true; // Set state to paused.
+            currentExerciseIndex = 0; // Reset index to the first exercise for a potential restart.
+            document.body.className = ''; // Clear any phase-specific background color.
+            exerciseProgressBar.style.width = '100%'; // Show progress bar as full.
+
+            // Disable navigation buttons when routine is finished
+            prevBtn.disabled = true;
+            nextBtn.disabled = true;
+        }
+
+        // --- Event Listeners ---
+
+        // Listen for clicks on the main play/pause/restart button.
+        playPauseBtn.addEventListener('click', () => {
+            if (playPauseBtn.textContent === 'Restart') {
+                // If the routine is finished and button says 'Restart', reset and start.
+                setExercise(0); // Go back to the first exercise.
+                startTimer();
+            } else {
+                // Otherwise, toggle between play and pause.
+                togglePlayPause();
+            }
+        });
+
+        // Listen for clicks on the 'Next' button.
+        nextBtn.addEventListener('click', () => {
+            pauseTimer(); // Pause the current timer before skipping.
+            if (currentExerciseIndex < routineData.length - 1) {
+                // If not the last exercise, move to the next.
+                setExercise(currentExerciseIndex + 1);
+                startTimer(); // Automatically start the timer for the next exercise.
+            } else {
+                // If it's the last exercise, finish the routine.
+                finishRoutine();
+            }
+        });
+
+        // Listen for clicks on the 'Back' button.
+        prevBtn.addEventListener('click', () => {
+            pauseTimer(); // Pause the current timer before going back.
+            if (currentExerciseIndex > 0) {
+                // If not the first exercise, move to the previous.
+                setExercise(currentExerciseIndex - 1);
+                startTimer(); // Automatically start the timer for the previous exercise.
+            } else {
+                // If at the first exercise, just reset its timer and stay paused.
+                setExercise(0);
+                pauseTimer();
+            }
+        });
+
+        // Listen for changes in the routine length selector.
+        routineLengthSelector.addEventListener('change', (event) => {
+            selectedRoutineLength = event.target.value; // Update the selected routine length.
+            localStorage.setItem('routineLength', selectedRoutineLength); // Save preference to local storage.
+            pauseTimer(); // Pause the current timer.
+            setExercise(0); // Reset to the first exercise with the new timing.
+            playPauseBtn.textContent = 'Start'; // Ensure button says 'Start' for a fresh routine.
+
+            // Re-enable buttons if they were disabled from a previous completion
+            prevBtn.disabled = false;
+            nextBtn.disabled = false;
+        });
+
+        // --- Initialization ---
+
+        // Set the routine length selector to the saved preference.
+        routineLengthSelector.value = selectedRoutineLength;
+
+        // Display the first exercise when the page initially loads.
+        setExercise(0);
+        // Initially disable Back/Skip buttons until timer starts or routine progresses
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+    </script>
+</body>
+</html>
