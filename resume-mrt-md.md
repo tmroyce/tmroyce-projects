@@ -1,13 +1,11 @@
 ---
-tags: []
+tags: 
 areas: 
 aliases: 
 status: 
-type:
-  - text
+type: 
 keywords: 
 architect:
-  - emroyce
   - tmroyce
   - michael royce
 created: 2025-07-10
