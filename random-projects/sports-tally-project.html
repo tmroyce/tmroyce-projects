@@ -168,7 +168,14 @@
         
         async function initApp() {
             setLogLevel('Debug');
-            const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+            const firebaseConfig = {
+                apiKey: "AIzaSyAaOnb1_nxvZlqYcecSomSy03GadYxU-l0",
+                authDomain: "sports-tally-project.firebaseapp.com",
+                projectId: "sports-tally-project",
+                storageBucket: "sports-tally-project.firebasestorage.app",
+                messagingSenderId: "711557950319",
+                appId: "1:711557950319:web:eb64dfd322d73f07a6d69a",
+                measurementId: "G-KYJE3F17LF"};
             
             try {
                 const app = initializeApp(firebaseConfig);
