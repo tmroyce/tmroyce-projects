@@ -34,7 +34,7 @@
             margin: 4px;
         }
         /* Admin Modal styles */
-        #admin-modal {
+        #admin-modal, #edit-game-modal { /* Apply to both modals */
             background-color: rgba(0, 0, 0, 0.9);
         }
     </style>
@@ -106,9 +106,9 @@
         </div>
     </div>
 
-    <!-- 5. Admin Modal (NEW) -->
+    <!-- 5. Admin Modal -->
     <div id="admin-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="w-full max-w-3xl bg-gray-800 rounded-lg shadow-xl p-8 max-h-full overflow-y-auto relative">
+        <div class="w-full max-w-4xl bg-gray-800 rounded-lg shadow-xl p-8 max-h-full overflow-y-auto relative">
             <!-- Close Button -->
             <button onclick="toggleAdminModal(false)" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors duration-200">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -121,7 +121,7 @@
             <!-- Add Game Form -->
             <div class="mb-8">
                 <h3 class="text-2xl font-bold mb-4 text-indigo-300">Add Game</h3>
-                <form id="add-game-form" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <form id="add-game-form" class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <div>
                         <label for="game-week" class="block text-sm font-medium text-gray-300 mb-1">Week</label>
                         <input type="number" id="game-week" min="1" value="1" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:ring-indigo-500 focus:border-indigo-500">
@@ -129,6 +129,10 @@
                     <div>
                         <label for="game-date" class="block text-sm font-medium text-gray-300 mb-1">Date</label>
                         <input type="date" id="game-date" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:ring-indigo-500 focus:border-indigo-500" required>
+                    </div>
+                    <div>
+                        <label for="game-time" class="block text-sm font-medium text-gray-300 mb-1">Time (24h EST)</label>
+                        <input type="time" id="game-time" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:ring-indigo-500 focus:border-indigo-500" required>
                     </div>
                     <div>
                         <label for="team-a" class="block text-sm font-medium text-gray-300 mb-1">Team A</label>
@@ -164,10 +168,54 @@
         </div>
     </div>
 
+    <!-- 6. NEW: Edit Game Modal -->
+    <div id="edit-game-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-4xl bg-gray-800 rounded-lg shadow-xl p-8 max-h-full overflow-y-auto relative">
+            <!-- Close Button -->
+            <button onclick="closeEditModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors duration-200">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            
+            <h2 class="text-3xl font-bold mb-6 text-white">Edit Game</h2>
 
-    <!-- 6. Firebase and App Logic -->
+            <!-- Edit Game Form -->
+            <form id="edit-game-form" class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                <input type="hidden" id="edit-game-id">
+                <div>
+                    <label for="edit-game-week" class="block text-sm font-medium text-gray-300 mb-1">Week</label>
+                    <input type="number" id="edit-game-week" min="1" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label for="edit-game-date" class="block text-sm font-medium text-gray-300 mb-1">Date</label>
+                    <input type="date" id="edit-game-date" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:ring-indigo-500 focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label for="edit-game-time" class="block text-sm font-medium text-gray-300 mb-1">Time (24h EST)</label>
+                    <input type="time" id="edit-game-time" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:ring-indigo-500 focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label for="edit-team-a" class="block text-sm font-medium text-gray-300 mb-1">Team A</label>
+                    <input type="text" id="edit-team-a" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:ring-indigo-500 focus:border-indigo-500" required>
+                </div>
+                <div>
+                    <label for="edit-team-b" class="block text-sm font-medium text-gray-300 mb-1">Team B</label>
+                    <input type="text" id="edit-team-b" class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:ring-indigo-500 focus:border-indigo-500" required>
+                </div>
+                <div class="self-end">
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+                        Update Game
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- 7. Firebase and App Logic -->
     <script type="module">
-        // 6a. Import Firebase modules
+        // 7a. Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { 
             getAuth, 
@@ -217,13 +265,23 @@
         const roleSelector = document.getElementById('role-selector');
         const messageArea = document.getElementById('message-area');
         const appContainer = document.getElementById('app-container');
-        const adminIconContainer = document.getElementById('admin-icon-container'); // NEW
-        const adminModal = document.getElementById('admin-modal'); // NEW
+        const adminIconContainer = document.getElementById('admin-icon-container');
+        const adminModal = document.getElementById('admin-modal');
         const addGameForm = document.getElementById('add-game-form');
         const addUserForm = document.getElementById('add-user-form');
         const gameList = document.getElementById('game-list');
         const scoreboard = document.getElementById('scoreboard');
         const weekFilter = document.getElementById('week-filter');
+        // NEW: Edit Modal Elements
+        const editGameModal = document.getElementById('edit-game-modal');
+        const editGameForm = document.getElementById('edit-game-form');
+        const editGameId = document.getElementById('edit-game-id');
+        const editGameWeek = document.getElementById('edit-game-week');
+        const editGameDate = document.getElementById('edit-game-date');
+        const editGameTime = document.getElementById('edit-game-time');
+        const editTeamA = document.getElementById('edit-team-a');
+        const editTeamB = document.getElementById('edit-team-b');
+
 
         // --- INITIALIZATION ---
         
@@ -285,20 +343,23 @@
         // Call init on load
         initApp();
 
-        // --- ROLE SELECTION & ADMIN MODAL ---
+        // --- ROLE SELECTION & MODAL CONTROLS ---
         
         function renderRoleSelector() {
             roleSelector.innerHTML = ''; // Clear
             
             // 1. Add Admin button (static)
             const adminBtn = document.createElement('button');
-            adminBtn.onclick = () => promptForAdminLogin(); // CHANGED
+            adminBtn.onclick = () => promptForAdminLogin(); 
             adminBtn.className = 'role-btn px-6 py-3 font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-700 transition duration-200';
             adminBtn.textContent = 'Admin';
             roleSelector.appendChild(adminBtn);
 
             // 2. Add buttons for all dynamic users
-            allUsers.forEach((user) => {
+            // NEW: Sort users alphabetically
+            const sortedUsers = [...allUsers].sort((a, b) => a.userName.localeCompare(b.userName));
+
+            sortedUsers.forEach((user) => { // CHANGED to sortedUsers
                 const userBtn = document.createElement('button');
                 userBtn.onclick = () => handleRoleSelect(user.userName);
                 userBtn.className = `role-btn px-6 py-3 font-semibold rounded-lg ${user.bgColor} transition duration-200`;
@@ -307,7 +368,6 @@
             });
         }
 
-        // NEW FUNCTION: Prompt for admin password
         window.promptForAdminLogin = () => {
             const pass = prompt("Enter Admin Password:");
             if (pass === "nepobaby") {
@@ -327,7 +387,6 @@
             // Style active role button
             document.querySelectorAll('.role-btn').forEach(btn => {
                 btn.classList.remove('ring-4', 'ring-offset-2', 'ring-offset-gray-900', 'ring-indigo-400'); // Clear all ring colors
-                // Find the user to get their specific color for the ring
                 const user = allUsers.find(u => u.userName === btn.textContent.trim());
                 let ringColor = 'ring-indigo-400'; // Default for Admin
                 if (user) {
@@ -356,7 +415,7 @@
             renderApp();
         }
 
-        // NEW: Toggle Admin Modal
+        // Toggle Admin Modal
         window.toggleAdminModal = (show) => {
             if (show) {
                 adminModal.classList.remove('hidden');
@@ -365,7 +424,31 @@
             }
         }
 
-        // NEW: Toggle Scoreboard Details
+        // NEW: Open/Close Edit Game Modal
+        window.openEditModal = (gameId) => {
+            const game = allGames.find(g => g.id === gameId);
+            if (!game) {
+                console.error("Game not found for editing:", gameId);
+                return;
+            }
+            
+            // Populate the form
+            editGameId.value = game.id;
+            editGameWeek.value = game.week;
+            editGameDate.value = game.gameDate;
+            editGameTime.value = game.gameTime;
+            editTeamA.value = game.teamA;
+            editTeamB.value = game.teamB;
+
+            // Show the modal
+            editGameModal.classList.remove('hidden');
+        }
+
+        window.closeEditModal = () => {
+            editGameModal.classList.add('hidden');
+        }
+
+        // Toggle Scoreboard Details
         window.toggleScoreboardDetails = (elementId) => {
             const detailsEl = document.getElementById(elementId);
             if (detailsEl) {
@@ -460,19 +543,25 @@
             
             const week = parseInt(document.getElementById('game-week').value);
             const gameDate = document.getElementById('game-date').value;
+            const gameTime = document.getElementById('game-time').value; 
             const teamA = document.getElementById('team-a').value;
             const teamB = document.getElementById('team-b').value;
 
-            if (!teamA || !teamB || !week || !gameDate) {
+            if (!teamA || !teamB || !week || !gameDate || !gameTime) {
                 console.error("Please fill out all fields.");
-                // We don't have messageArea in the modal, could add one
                 return;
             }
+
+            // Create combined timestamp and convert to UTC
+            const localGameDate = new Date(`${gameDate}T${gameTime}:00`);
+            const gameTimestamp = localGameDate.toISOString(); 
 
             try {
                 await addDoc(collection(db, gamesCollectionPath), {
                     week: week,
                     gameDate: gameDate,
+                    gameTime: gameTime,
+                    gameTimestamp: gameTimestamp,
                     teamA: teamA,
                     teamB: teamB,
                     winner: null,
@@ -483,6 +572,44 @@
                 document.getElementById('game-week').value = week;
             } catch (error) {
                 console.error("Error adding game:", error);
+            }
+        });
+
+        // NEW: Admin: Edit game form
+        editGameForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (currentUserRole !== 'Admin') return;
+
+            const gameId = editGameId.value;
+            const week = parseInt(editGameWeek.value);
+            const gameDate = editGameDate.value;
+            const gameTime = editGameTime.value;
+            const teamA = editTeamA.value;
+            const teamB = editTeamB.value;
+
+            if (!gameId || !teamA || !teamB || !week || !gameDate || !gameTime) {
+                console.error("Please fill out all fields.");
+                return;
+            }
+
+            // Re-calculate timestamp just like when adding
+            const localGameDate = new Date(`${gameDate}T${gameTime}:00`);
+            const gameTimestamp = localGameDate.toISOString();
+
+            try {
+                await updateDoc(doc(db, gamesCollectionPath, gameId), {
+                    week: week,
+                    gameDate: gameDate,
+                    gameTime: gameTime,
+                    gameTimestamp: gameTimestamp,
+                    teamA: teamA,
+                    teamB: teamB,
+                    // We don't update winner or status here, that's done by "Mark Winner"
+                });
+                console.log("Game updated!");
+                closeEditModal();
+            } catch (error) {
+                console.error("Error updating game:", error);
             }
         });
 
@@ -499,11 +626,9 @@
                 return;
             }
             
-            // Check if user already exists (case-insensitive)
             const userExists = allUsers.some(user => user.userName.toLowerCase() === userName.toLowerCase());
             if (userExists) {
                 console.error("User already exists:", userName);
-                // Could add a message in the modal
                 return;
             }
             
@@ -539,12 +664,22 @@
         window.handlePick = async (gameId, week, pickedTeam) => {
             if (!currentUserRole || currentUserRole === 'Admin') return;
             
+            const game = allGames.find(g => g.id === gameId);
+            if (game && game.gameTimestamp) {
+                const gameStartTime = new Date(game.gameTimestamp);
+                if (new Date() >= gameStartTime) {
+                    console.warn("Pick rejected: Game has already started.");
+                    renderApp(); // Re-render to show it's locked
+                    return;
+                }
+            }
+
             const pickDocId = `${gameId}_${currentUserRole}`;
             
             try {
                 await setDoc(doc(db, picksCollectionPath, pickDocId), {
                     gameId: gameId,
-                    userId: currentUserRole, // This is the user's name
+                    userId: currentUserRole, 
                     week: week,
                     pickedTeam: pickedTeam
                 });
@@ -584,7 +719,7 @@
             const allPicksData = [];
             picksSnapshot.forEach(doc => allPicksData.push(doc.data()));
 
-            let newScores = {}; // e.g., { "Brian F": { totalScore: 0, ... } }
+            let newScores = {}; 
 
             // 1. Initialize score objects for all known users
             allUsers.forEach(user => {
@@ -594,8 +729,6 @@
             // 2. Loop through every single final game and tally scores
             for (const game of finalGames) {
                 const weekStr = `week${game.week}`;
-                
-                // Find all picks for this game
                 const gamePicks = allPicksData.filter(p => p.gameId === game.id);
 
                 for (const pick of gamePicks) {
@@ -613,7 +746,6 @@
                         newScores[userName].weeklyScores[weekStr] = 0;
                     }
 
-                    // Check if the pick was correct
                     if (pick.pickedTeam === game.winner) {
                         newScores[userName].totalScore++;
                         newScores[userName].weeklyScores[weekStr]++;
@@ -664,51 +796,83 @@
             
             const gamesForWeek = allGames.filter(g => g.week === currentWeek);
 
-            // **** NEW: Sort games by date in ascending order ****
-            gamesForWeek.sort((a, b) => a.gameDate.localeCompare(b.gameDate));
+            gamesForWeek.sort((a, b) => {
+                const aTimestamp = a.gameTimestamp || `${a.gameDate}T00:00:00Z`; 
+                const bTimestamp = b.gameTimestamp || `${b.gameDate}T00:00:00Z`; 
+                return aTimestamp.localeCompare(bTimestamp);
+            });
 
             if (gamesForWeek.length === 0) {
                 gameList.innerHTML = `<div class="text-gray-400 text-center p-8">No games added for Week ${currentWeek} yet.</div>`;
                 return;
             }
 
+            const currentTime = new Date(); 
+
             for (const game of gamesForWeek) {
                 const gamePicks = allPicks.filter(p => p.gameId === game.id);
                 const userPick = gamePicks.find(p => p.userId === currentUserRole);
 
                 let gameDateStr = '';
-                if (game.gameDate) {
+                let gameTimeStr = '';
+                let isLocked = false;
+                let displayStatus = game.status;
+                let statusColor = 'text-green-400'; 
+
+                if (game.gameTimestamp) {
                     try {
-                        const dateParts = game.gameDate.split('-');
-                        const gameDateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
-                        // **** UPDATED THIS LINE ****
-                        gameDateStr = gameDateObj.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
-                    } catch (e) { console.warn("Could not parse date:", game.gameDate); }
+                        const gameStartTime = new Date(game.gameTimestamp); 
+                        
+                        const timeZone = 'America/New_York';
+                        gameDateStr = gameStartTime.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', timeZone });
+                        gameTimeStr = gameStartTime.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: false, timeZone });
+
+                        if (currentTime >= gameStartTime) {
+                            isLocked = true;
+                            if (game.status === 'upcoming') {
+                                displayStatus = 'LOCKED';
+                                statusColor = 'text-yellow-400'; 
+                            }
+                        }
+                    } catch (e) { console.warn("Could not parse timestamp:", game.gameTimestamp); }
+                } else {
+                    gameDateStr = game.gameDate;
+                    gameTimeStr = game.gameTime || 'N/A';
                 }
+
+                if (game.status === 'final') {
+                    displayStatus = 'FINAL';
+                    statusColor = 'text-red-400'; 
+                }
+
 
                 let gameCardHTML = `
                     <div class="bg-gray-800 rounded-lg shadow-lg p-6">
                         <div class="flex justify-between items-center mb-4">
                             <span class="text-sm font-semibold text-indigo-400">
-                                WEEK ${game.week} ${gameDateStr ? `(${gameDateStr})` : ''}
+                                WEEK ${game.week} ${gameDateStr ? `(${gameDateStr} @ ${gameTimeStr})` : ''}
                             </span>
-                            <span class="text-sm font-semibold ${game.status === 'final' ? 'text-red-400' : 'text-green-400'}">
-                                ${game.status.toUpperCase()}
+                            <span class="text-sm font-semibold ${statusColor}">
+                                ${displayStatus.toUpperCase()}
                             </span>
                         </div>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                        <div class="grid grid-cols-3 gap-2 md:gap-4 items-center">
                 `;
 
                 // --- Team A Button/Info (Dynamic) ---
                 let teamAClass = 'team-btn p-4 rounded-lg text-center transition duration-200';
                 if (game.status === 'upcoming') {
-                    teamAClass += ' bg-gray-700 hover:bg-gray-600 cursor-pointer';
-                    if (userPick && userPick.pickedTeam === game.teamA) {
-                        teamAClass += ' pick-selected';
+                    if (isLocked) {
+                        teamAClass += ' bg-gray-700 opacity-60'; 
+                    } else {
+                        teamAClass += ' bg-gray-700 hover:bg-gray-600 cursor-pointer'; 
+                        if (userPick && userPick.pickedTeam === game.teamA) {
+                            teamAClass += ' pick-selected';
+                        }
                     }
-                } else { // Game is final
-                    teamAClass += ' bg-gray-700'; // Default
+                } else { 
+                    teamAClass += ' bg-gray-700'; 
                     if (userPick && userPick.pickedTeam === game.teamA) {
                         teamAClass += (game.winner === game.teamA ? ' pick-correct' : ' pick-incorrect');
                     }
@@ -725,22 +889,63 @@
                 gameCardHTML += `
                     <div 
                         class="${teamAClass}" 
-                        ${game.status === 'upcoming' && currentUserRole !== 'Admin' ? `onclick="handlePick('${game.id}', ${game.week}, '${game.teamA}')"` : ''}
+                        ${game.status === 'upcoming' && currentUserRole !== 'Admin' && !isLocked ? `onclick="handlePick('${game.id}', ${game.week}, '${game.teamA}')"` : ''}
                     >
                         <span class="text-xl font-bold">${game.teamA}</span>
                         ${game.status === 'final' ? `<div class="text-xs mt-1 h-4">${teamAPickersHTML}</div>` : ''}
                     </div>
                 `;
 
+                // --- NEW "DRAW" Button/Info ---
+                let drawClass = 'team-btn p-4 rounded-lg text-center transition duration-200';
+                if (game.status === 'upcoming') {
+                    if (isLocked) {
+                        drawClass += ' bg-gray-700 opacity-60'; 
+                    } else {
+                        drawClass += ' bg-gray-700 hover:bg-gray-600 cursor-pointer'; 
+                        if (userPick && userPick.pickedTeam === 'Draw') {
+                            drawClass += ' pick-selected';
+                        }
+                    }
+                } else { 
+                    drawClass += ' bg-gray-700'; 
+                    if (userPick && userPick.pickedTeam === 'Draw') {
+                        drawClass += (game.winner === 'Draw' ? ' pick-correct' : ' pick-incorrect');
+                    }
+                }
+                
+                const drawPickersHTML = gamePicks
+                    .filter(p => p.pickedTeam === 'Draw')
+                    .map(p => {
+                        const user = allUsers.find(u => u.userName === p.userId);
+                        const color = user ? user.color : 'text-gray-300';
+                        return `<span class="${color} ml-1">${p.userId}</span>`;
+                    }).join('');
+                
+                gameCardHTML += `
+                    <div 
+                        class="${drawClass}" 
+                        ${game.status === 'upcoming' && currentUserRole !== 'Admin' && !isLocked ? `onclick="handlePick('${game.id}', ${game.week}, 'Draw')"` : ''}
+                    >
+                        <span class="text-xl font-bold text-gray-400">DRAW</span>
+                        ${game.status === 'final' ? `<div class="text-xs mt-1 h-4">${drawPickersHTML}</div>` : ''}
+                    </div>
+                `;
+
+
                 // --- Team B Button/Info (Dynamic) ---
                 let teamBClass = 'team-btn p-4 rounded-lg text-center transition duration-200';
                 if (game.status === 'upcoming') {
-                    teamBClass += ' bg-gray-700 hover:bg-gray-600 cursor-pointer';
-                    if (userPick && userPick.pickedTeam === game.teamB) {
-                        teamBClass += ' pick-selected';
+                     if (isLocked) {
+                        teamBClass += ' bg-gray-700 opacity-60'; 
+                    } else {
+                        teamBClass += ' bg-gray-700 hover:bg-gray-600 cursor-pointer'; 
+                        if (userPick && userPick.pickedTeam === game.teamB) {
+                            teamBClass += ' pick-selected';
+                        }
                     }
-                } else { // Game is final
-                    teamBClass += ' bg-gray-700'; // Default
+                } else { 
+                    teamBClass += ' bg-gray-700'; 
                     if (userPick && userPick.pickedTeam === game.teamB) {
                         teamBClass += (game.winner === game.teamB ? ' pick-correct' : ' pick-incorrect');
                     }
@@ -757,7 +962,7 @@
                 gameCardHTML += `
                     <div 
                         class="${teamBClass}" 
-                        ${game.status === 'upcoming' && currentUserRole !== 'Admin' ? `onclick="handlePick('${game.id}', ${game.week}, '${game.teamB}')"` : ''}
+                        ${game.status === 'upcoming' && currentUserRole !== 'Admin' && !isLocked ? `onclick="handlePick('${game.id}', ${game.week}, '${game.teamB}')"` : ''}
                     >
                         <span class="text-xl font-bold">${game.teamB}</span>
                         ${game.status === 'final' ? `<div class="text-xs mt-1 h-4">${teamBPickersHTML}</div>` : ''}
@@ -775,6 +980,7 @@
                     `;
                 } else if (currentUserRole === 'Admin') {
                     let teamAWinClass = 'flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all';
+                    let drawWinClass = 'flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all'; 
                     let teamBWinClass = 'flex-1 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all';
 
                     if (game.status === 'final') {
@@ -782,16 +988,27 @@
                             teamAWinClass = 'flex-1 bg-red-600 ring-4 ring-red-300 text-white font-semibold py-2 px-3 rounded-lg text-sm';
                         } else if (game.winner === game.teamB) {
                             teamBWinClass = 'flex-1 bg-red-600 ring-4 ring-red-300 text-white font-semibold py-2 px-3 rounded-lg text-sm';
+                        } else if (game.winner === 'Draw') { 
+                            drawWinClass = 'flex-1 bg-red-600 ring-4 ring-red-300 text-white font-semibold py-2 px-3 rounded-lg text-sm';
                         }
                     }
 
+                    // UPDATED Admin footer with Edit button
                     gameCardHTML += `
-                        <div class="mt-6 flex gap-4">
-                            <button onclick="handleMarkWinner('${game.id}', '${game.teamA}')" class="${teamAWinClass}">
-                                Mark ${game.teamA} as Winner
+                        <div class="mt-6 grid grid-cols-4 gap-2">
+                            <button onclick="handleMarkWinner('${game.id}', '${game.teamA}')" class="${teamAWinClass} col-span-1">
+                                ${game.teamA} Wins
                             </button>
-                            <button onclick="handleMarkWinner('${game.id}', '${game.teamB}')" class="${teamBWinClass}">
-                                Mark ${game.teamB} as Winner
+                            <button onclick="handleMarkWinner('${game.id}', 'Draw')" class="${drawWinClass} col-span-1">
+                                Draw
+                            </button>
+                            <button onclick="handleMarkWinner('${game.id}', '${game.teamB}')" class="${teamBWinClass} col-span-1">
+                                ${game.teamB} Wins
+                            </button>
+                            <!-- NEW Edit Button -->
+                            <button onclick="openEditModal('${game.id}')" class="col-span-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg text-sm transition-all flex items-center justify-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                Edit
                             </button>
                         </div>
                     `;
